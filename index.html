@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title> AI Emergency Fund Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-light: #f4faff;
+      --bg-dark: #1a1a1a;
+      --text-light: #1a1a1a;
+      --text-dark: #f4faff;
+      --primary: #16327a;
+      --accent: #00bcd4;
+      --white: #ffffff;
+    }
+
+    body {
+      background: var(--bg-light);
+      color: var(--text-light);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .title h1 {
+      color: var(--primary);
+      font-size: 2rem;
+    }
+
+    .title p {
+      color: inherit;
+      font-size: 1rem;
+    }
+
+    .calculator,
+    .tips {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-top: 30px;
+      transition: background 0.3s ease;
+    }
+
+    body.dark-mode .calculator,
+    body.dark-mode .tips {
+      background: #2c2c2c;
+    }
+
+    .calculator h2,
+    .tips h2 {
+      color: var(--primary);
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 15px;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: white;
+      color: black;
+    }
+
+    body.dark-mode input[type="number"],
+    body.dark-mode input[type="range"] {
+      background: #444;
+      color: white;
+      border: 1px solid #666;
+    }
+
+    .btn {
+      margin-top: 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .faq-item {
+      border-top: 1px solid #e0e0e0;
+      padding: 15px 0;
+    }
+
+    .faq-item h3 {
+      font-size: 1rem;
+      color: var(--primary);
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .faq-content {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .chat-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+    }
+
+    .chatbox {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 350px;
+      height: 500px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 999;
+      transition: background 0.3s ease;
+    }
+
+    body.dark-mode .chatbox {
+      background: #2c2c2c;
+      color: white;
+    }
+
+    .chatbox-header {
+      background: var(--primary);
+      color: white;
+      padding: 15px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbox-header button {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .chatbox-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+    }
+
+    .chatbox-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    .chatbox-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    .chatbox-input button {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    .toggle-mode-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+<button class="toggle-mode-btn" onclick="toggleMode()"></button>
+
+<div class="container">
+  <div class="title">
+    <h1>AI Emergency Fund Calculator</h1>
+    <p>Plan your financial safety net with our easy-to-use calculator.</p>
+  </div>
+
+  <div class="calculator">
+    <h2>Calculate Your Emergency Fund</h2>
+    <label>Monthly Expenses (₹)</label>
+    <input type="number" id="monthly-expenses" value="30000"/>
+
+    <label>Current Emergency Savings (₹)</label>
+    <input type="number" id="current-savings" value="0"/>
+
+    <label>Months of Expenses to Save: <span id="months-display">6</span></label>
+    <input type="range" min="3" max="12" value="6" id="months-slider"/>
+
+    <button class="btn" onclick="calculateFund()">Calculate Emergency Fund</button>
+    <p id="result" style="margin-top: 15px; font-weight: bold;"></p>
+  </div>
+
+  <div class="tips">
+    <h2>Emergency Fund Tips</h2>
+    <div class="faq-item">
+      <h3 onclick="toggleFAQ(this)">What is an emergency fund? <span>+</span></h3>
+      <div class="faq-content">An emergency fund is money set aside for unexpected expenses such as medical emergencies or job loss.</div>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFAQ(this)">How much should I save? <span>+</span></h3>
+      <div class="faq-content">Ideally, you should save 3-6 months of living expenses as your emergency fund.</div>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFAQ(this)">Where should I keep my emergency fund? <span>+</span></h3>
+      <div class="faq-content">Keep your emergency fund in a liquid and accessible account, like a savings account.</div>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFAQ(this)">How do I start building my fund? <span>+</span></h3>
+      <div class="faq-content">Start by saving a small amount regularly, cutting non-essential spending, and automating your savings.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Created By:- Rajeev Ranjan(12326826) rollNo-47
+  </br> Ahmar Nawab(12310505) rollNo- 59 
+  <br>  Ashish Anand(12326774) rollNo-10
+  </div>
+</div>
+
+<!-- Floating Chat -->
+<div class="chat-button" onclick="toggleChat()">💬</div>
+
+<div class="chatbox" id="chatbox">
+  <div class="chatbox-header">
+    Ask Emergency Fund AI
+    <button onclick="clearChat()">🗑️</button>
+  </div>
+  <div class="chatbox-messages" id="chatbox-messages"></div>
+  <div class="chatbox-input">
+    <input type="text" id="chat-input" placeholder="Type your question..." onkeydown="checkEnter(event)" />
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+  const slider = document.getElementById("months-slider");
+  const display = document.getElementById("months-display");
+  slider.oninput = () => display.textContent = slider.value;
+
+  function calculateFund() {
+    const monthly = parseFloat(document.getElementById("monthly-expenses").value) || 0;
+    const saved = parseFloat(document.getElementById("current-savings").value) || 0;
+    const months = parseInt(slider.value);
+    const total = monthly * months;
+    const needed = total - saved;
+    document.getElementById("result").textContent = `You need ₹${needed > 0 ? needed : 0} more to build your emergency fund of ₹${total}.`;
+  }
+
+  function toggleFAQ(el) {
+    const content = el.nextElementSibling;
+    const expanded = content.style.display === 'block';
+    document.querySelectorAll('.faq-content').forEach(f => f.style.display = 'none');
+    document.querySelectorAll('.faq-item h3 span').forEach(s => s.textContent = '+');
+    if (!expanded) {
+      content.style.display = 'block';
+      el.querySelector('span').textContent = '−';
+    }
+  }
+
+  function toggleChat() {
+    const box = document.getElementById("chatbox");
+    box.style.display = box.style.display === "flex" ? "none" : "flex";
+  }
+
+  function sendChat() {
+    const input = document.getElementById("chat-input");
+    const msg = input.value.trim();
+    if (!msg) return;
+    const chatArea = document.getElementById("chatbox-messages");
+    const userMsg = document.createElement("div");
+    userMsg.textContent = `You: ${msg}`;
+    chatArea.appendChild(userMsg);
+    input.value = "";
+
+    setTimeout(() => {
+      const botMsg = document.createElement("div");
+      botMsg.textContent = `AI: Thanks for asking! Here's something useful about emergency funds.`;
+      chatArea.appendChild(botMsg);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }, 600);
+  }
+
+  function checkEnter(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendChat();
+    }
+  }
+
+  function clearChat() {
+    document.getElementById("chatbox-messages").innerHTML = "";
+  }
+
+  function toggleMode() {
+    document.body.classList.toggle("dark-mode");
+  }
+  function sendChat() {
+    const input = document.getElementById("chat-input");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const chatArea = document.getElementById("chatbox-messages");
+
+    // Show user's message
+    const userMsg = document.createElement("div");
+    userMsg.className = "message user";
+    userMsg.textContent = `You: ${msg}`;
+    chatArea.appendChild(userMsg);
+
+    input.value = "";
+
+    fetch('http://127.0.0.1:5000/chat', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot";
+      botMsg.textContent = `AI: ${data.reply}`;
+      chatArea.appendChild(botMsg);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    })
+    .catch(err => {
+      const errMsg = document.createElement("div");
+      errMsg.className = "message bot";
+      errMsg.textContent = "Oops! Something went wrong.";
+      chatArea.appendChild(errMsg);
+    });
+  }
+
+
+
+
+
+</script>
+
+</body>
+</html>
